@@ -18,9 +18,11 @@ class FeatureFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->sentence,
-            'description' => $this->faker->paragraph,
-            'user_id' => User::where('email', 'admin@gmail.com')->first()->id,
+            'name' => fake()->sentence(),
+            'description' => fake()->paragraph(),
+            'user_id' => User::factory(),
+            'created_at' => fake()->dateTimeBetween('-1 year'),
+            'updated_at' => fake()->dateTimeBetween('-1 month'),
         ];
     }
 }

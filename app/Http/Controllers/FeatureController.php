@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Feature;
 use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
+use App\Http\Resources\FeatureResource;
+
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class FeatureController extends Controller
 {
@@ -13,12 +17,19 @@ class FeatureController extends Controller
      */
     public function index()
     {
-        //
+        if(!Auth::check()){
+            return redirect()->route('login');
+        }
+        $currentUserId = Auth::id();
+        $paginatedFeatures = Feature::withUpVoteCount()->withUserVoteStatus($currentUserId)-> latest()->paginate(10);
+        return Inertia::render('Features/Index', [
+            'features' => FeatureResource::collection($paginatedFeatures),
+        ]);
+
+
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         //
@@ -56,9 +67,7 @@ class FeatureController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+   
     public function destroy(Feature $feature)
     {
         //
