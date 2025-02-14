@@ -5,7 +5,6 @@ import FeatureActionsDropdown from "./FeatureActionsDropdown";
 import { Link } from "@inertiajs/react";
 export default function FeatureItem({ feature }: { feature: Feature }) {
     const [isExpanded, setIsExpanded] = useState(false);
-
     const toggleReadMore = () => {
         setIsExpanded(!isExpanded);
     };

@@ -9,7 +9,25 @@ export interface User {
     permissions: string[];
     roles: string[];
 }
-
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+    prev: string | null;
+    next: string | null;
+}
+export interface PaginatedUserData<T> {
+    data: T[];
+    current_page: number;
+    first_page_url: string;
+    last_page: number;
+    last_page_url: string;
+    links: PaginationLink;
+    next_page_url: string | null;
+    prev_page_url: string | null;
+    per_page: number;
+    total: number;
+}
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {
@@ -38,6 +56,10 @@ export type Comment = {
 };
 
 export type PaginatedData<T = any> = {
+    prev_page_url: any;
+    current_page: ReactNode;
+    last_page: ReactNode;
+    next_page_url: any;
     data: T[];
     links: Record<string, string>;
 };

@@ -1,6 +1,6 @@
 import Dropdown from "@/Components/Dropdown";
 import { Feature } from "@/types";
-// import {can} from "@/helpers";
+
 import { usePage } from "@inertiajs/react";
 
 export default function FeatureActionsDropdown({

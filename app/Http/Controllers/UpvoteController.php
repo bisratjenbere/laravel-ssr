@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Upvote;
 use App\Http\Requests\StoreUpvoteRequest;
 use App\Http\Requests\UpdateUpvoteRequest;
+use App\Models\Feature;
+use Illuminate\Support\Facades\Auth;
 
 class UpvoteController extends Controller
 {
@@ -27,9 +29,14 @@ class UpvoteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUpvoteRequest $request)
+    public function store(StoreUpvoteRequest $request, Feature $feature)
     {
-        //
+        $data = $request ->validated();
+        Upvote::updateOrCreate([
+            'user_id' => Auth::id(),
+            'feature_id' => $feature->id,
+        ], ['upvote' => $data['upvote']]);
+        return back();
     }
 
     /**

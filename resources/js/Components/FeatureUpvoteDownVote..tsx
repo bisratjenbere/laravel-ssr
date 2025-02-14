@@ -6,21 +6,31 @@ export default function FeatureUpvoteDownvote({
 }: {
     feature: Feature;
 }) {
-    const { delete: destroy, post } = useForm();
+    const upvoteForm = useForm({
+        upvote: true,
+    });
 
-    const handleVote = (upvote: boolean) => {
-        const hasVoted = upvote
-            ? feature.user_has_upvoted
-            : feature.user_has_downvoted;
-        console.log(hasVoted);
+    const downvoteForm = useForm({
+        upvote: false,
+    });
 
-        if (hasVoted) {
-            destroy(route("upvote.destroy", feature.id), {
+    const upvoteDownvote = (upvote: boolean) => {
+        if (
+            (feature.user_has_upvoted && upvote) ||
+            (feature.user_has_downvoted && !upvote)
+        ) {
+            upvoteForm.delete(route("upvote.destroy", feature.id), {
                 preserveScroll: true,
             });
         } else {
-            post(route("upvote.store", feature.id), {
-                data: { upvote },
+            let form = null;
+            if (upvote) {
+                form = upvoteForm;
+            } else {
+                form = downvoteForm;
+            }
+
+            form.post(route("upvote.store", feature.id), {
                 preserveScroll: true,
             });
         }
@@ -29,7 +39,7 @@ export default function FeatureUpvoteDownvote({
     return (
         <div className="flex flex-col items-center">
             <button
-                onClick={() => handleVote(true)}
+                onClick={() => upvoteDownvote(true)}
                 className={feature.user_has_upvoted ? "text-amber-600" : ""}
             >
                 <svg
@@ -56,7 +66,7 @@ export default function FeatureUpvoteDownvote({
                 {feature.upvote_count}
             </span>
             <button
-                onClick={() => handleVote(false)}
+                onClick={() => upvoteDownvote(false)}
                 className={feature.user_has_downvoted ? "text-amber-600" : ""}
             >
                 <svg

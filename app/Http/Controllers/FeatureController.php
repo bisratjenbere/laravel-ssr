@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Feature;
 use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
+use App\Http\Resources\CommentResource;
 use App\Http\Resources\FeatureResource;
-
+use App\Http\Resources\UserResource;
+use App\Models\Upvote;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class FeatureController extends Controller
@@ -21,9 +24,24 @@ class FeatureController extends Controller
             return redirect()->route('login');
         }
         $currentUserId = Auth::id();
-        $paginatedFeatures = Feature::withUpVoteCount()->withUserVoteStatus($currentUserId)-> latest()->paginate(10);
+
+        $paginated = Feature::latest()
+            ->withCount(['upvotes as upvote_count' => function ($query) {
+                $query->select(DB::raw('SUM(CASE WHEN upvote = 1 THEN 1 ELSE -1 END)'));
+            }])
+            ->withExists([
+                'upvotes as user_has_upvoted' => function ($query) use ($currentUserId) {
+                    $query->where('user_id', $currentUserId)
+                        ->where('upvote', 1);
+                },
+                'upvotes as user_has_downvoted' => function ($query) use ($currentUserId) {
+                    $query->where('user_id', $currentUserId)
+                        ->where('upvote', 0);
+                }
+            ])
+            ->paginate();
         return Inertia::render('Features/Index', [
-            'features' => FeatureResource::collection($paginatedFeatures),
+            'features' => FeatureResource::collection($paginated),
         ]);
 
 
@@ -32,7 +50,7 @@ class FeatureController extends Controller
 
     public function create()
     {
-        //
+        return Inertia::render('Features/Create');
     }
 
     /**
@@ -48,7 +66,11 @@ class FeatureController extends Controller
      */
     public function show(Feature $feature)
     {
-        //
+        $data = $feature::with('user.comments');
+
+    return Inertia::render('Features/Show', [
+        'feature' => new FeatureResource($feature),
+    ]);
     }
 
     /**
@@ -56,20 +78,24 @@ class FeatureController extends Controller
      */
     public function edit(Feature $feature)
     {
-        //
+    return Inertia::render('Features/Edit', [
+        'feature' => new FeatureResource($feature),
+    ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(UpdateFeatureRequest $request, Feature $feature)
     {
-        //
-    }
+        $data = $request->validated();
+        $feature->update($data);
+        return to_route('feature.index')->with('success', 'Feature updated successfully');
 
-   
+
+    }
     public function destroy(Feature $feature)
     {
-        //
+        $feature->delete();
+        return redirect()->route('feature.index')->with('success', 'Feature deleted successfully.');
+
     }
 }

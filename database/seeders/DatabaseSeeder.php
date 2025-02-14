@@ -42,6 +42,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'admin@example.com',
+
         ])->assignRole(RolesEnum::Admin);
         Feature::factory(100)->create();
 
