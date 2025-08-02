@@ -31,5 +31,9 @@ DB_PASSWORD=your_password
 ### 5. Run migrations & seed database
 ```bash
 php artisan serve
+```
+### 6. Run the development server
+```bash
+php artisan serve
 
 ```
